@@ -12,38 +12,47 @@ if 'cart' not in st.session_state:
 
 # --- 1. เมนูแนะนำประจำวัน ---
 st.subheader("⭐ เมนูแนะนำวันนี้")
-rec_col1, rec_col2 = st.columns([1, 2])
-with rec_col1:
-    st.image("https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500", caption="กะเพราหมูกรอบ ไข่ดาว", use_container_width=True)
-with rec_col2:
-    st.markdown("### **🍳 กะเพราหมูกรอบ ไข่ดาว (พิเศษ)**")
-    st.write("หมูกรอบผัดพริกแห้งเข้มข้น กรอบนอกนุ่มใน เสิร์ฟพร้อมไข่ดาวกรอบๆ")
-    st.write("💰 **ราคา: 75 บาท**")
-    if st.button("➕ เพิ่มเมนูแนะนำลงตะกร้า", key="rec_btn", type="primary"):
-        st.session_state.cart.append({"name": "กะเพราหมูกรอบ ไข่ดาว (พิเศษ)", "price": 75})
-        st.toast("เพิ่มเมนูแนะนำลงในตะกร้าแล้ว!", icon="✅")
+st.markdown("### **🍳 กะเพราหมูกรอบ ไข่ดาว (พิเศษ)**")
+st.write("หมูกรอบผัดพริกแห้งเข้มข้น กรอบนอกนุ่มใน เสิร์ฟพร้อมไข่ดาวกรอบๆ")
+st.write("💰 **ราคา: 75 บาท**")
+if st.button("➕ เพิ่มเมนูแนะนำลงตะกร้า", key="rec_btn", type="primary"):
+    st.session_state.cart.append({"name": "กะเพราหมูกรอบ ไข่ดาว (พิเศษ)", "price": 75})
+    st.toast("เพิ่มเมนูแนะนำลงในตะกร้าแล้ว!", icon="✅")
 
 st.divider()
 
-# --- 2. หมวดหมู่และรายการอาหาร ---
+# --- 2. หมวดหมู่และรายการอาหารเพิ่มเติม ---
 st.subheader("📋 เมนูทั้งหมด")
 
-# ข้อมูลเมนูแยกตามหมวดหมู่
+# ข้อมูลเมนูแยกตามหมวดหมู่ (เพิ่มเมนูใหม่ๆ แล้ว)
 menu_data = {
     "⚡ อาหารจานด่วน": [
-        {"id": 101, "name": "ข้าวผัดต้มยำกุ้ง", "price": 80, "img": "https://images.unsplash.com/photo-1559847844-5315695dadae?w=500"},
-        {"id": 102, "name": "ผัดไทยกุ้งสด", "price": 70, "img": "https://images.unsplash.com/photo-1559847844-5315695dadae?w=500"},
-        {"id": 103, "name": "ข้าวมันไก่ทอด", "price": 60, "img": "https://images.unsplash.com/photo-1562967914-608f82629710?w=500"},
+        {"id": 101, "name": "กะเพราหมูสับ ไข่ดาว", "price": 60},
+        {"id": 102, "name": "ข้าวผัดต้มยำกุ้ง", "price": 80},
+        {"id": 103, "name": "ผัดไทยกุ้งสด", "price": 70},
+        {"id": 104, "name": "ข้าวมันไก่ทอด", "price": 60},
+        {"id": 105, "name": "ข้าวหมูกระเทียม ไข่ดาว", "price": 65},
+        {"id": 106, "name": "สุกี้น้ำ/แห้ง หมู/ไก่", "price": 60},
+        {"id": 107, "name": "ข้าวผัดปู", "price": 75},
+        {"id": 108, "name": "ราดหน้าหมูหมัก", "price": 60},
     ],
     "🍟 ของกินเล่น": [
-        {"id": 201, "name": "เฟรนช์ฟรายส์ทอด", "price": 49, "img": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500"},
-        {"id": 202, "name": "นักเก็ตไก่ (6 ชิ้น)", "price": 59, "img": "https://images.unsplash.com/photo-1562967914-608f82629710?w=500"},
-        {"id": 203, "name": "เกี๊ยวซ่าทอด", "price": 55, "img": "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=500"},
+        {"id": 201, "name": "เฟรนช์ฟรายส์ทอด", "price": 49},
+        {"id": 202, "name": "นักเก็ตไก่ (6 ชิ้น)", "price": 59},
+        {"id": 203, "name": "เกี๊ยวซ่าทอด (5 ชิ้น)", "price": 55},
+        {"id": 204, "name": "ไก่ป็อบชีส", "price": 59},
+        {"id": 205, "name": "ปอเปี๊ยะทอด", "price": 50},
+        {"id": 206, "name": "ลูกชิ้นปลาทอด", "price": 45},
     ],
     "🥤 เครื่องดื่ม": [
-        {"id": 301, "name": "ชาไทยเย็น", "price": 35, "img": "https://images.unsplash.com/photo-1558857563-b371033873b8?w=500"},
-        {"id": 302, "name": "กาแฟโบราณ", "price": 35, "img": "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500"},
-        {"id": 303, "name": "น้ำมะนาวโซดา", "price": 40, "img": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500"},
+        {"id": 301, "name": "ชาไทยเย็น", "price": 35},
+        {"id": 302, "name": "ชาเขียวนมเย็น", "price": 35},
+        {"id": 303, "name": "กาแฟโบราณ / โอเลี้ยง", "price": 35},
+        {"id": 304, "name": "น้ำมะนาวโซดา", "price": 40},
+        {"id": 305, "name": "ชามะนาว", "price": 35},
+        {"id": 306, "name": "นมสดเย็น / นมชมพู", "price": 40},
+        {"id": 307, "name": "น้ำเปล่า + น้ำแข็ง", "price": 15},
+        {"id": 308, "name": "โค้ก / แป๊ปซี่ (กระป๋อง)", "price": 25},
     ]
 }
 
@@ -53,9 +62,7 @@ tabs = st.tabs(list(menu_data.keys()))
 for tab, (category, items) in zip(tabs, menu_data.items()):
     with tab:
         for item in items:
-            col_img, col_detail, col_btn = st.columns([1.5, 2.5, 1.5])
-            with col_img:
-                st.image(item["img"], use_container_width=True)
+            col_detail, col_btn = st.columns([3, 1])
             with col_detail:
                 st.markdown(f"**{item['name']}**")
                 st.write(f"ราคา: **{item['price']} บาท**")
