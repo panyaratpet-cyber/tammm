@@ -9,7 +9,7 @@ ORDER_FILE = "orders.csv"
 
 # ตรวจสอบไฟล์เก็บข้อมูลถาวร
 if not os.path.exists(ORDER_FILE):
-    df_init = pd.DataFrame(columns=["Timestamp", "Items", "Total_Price", "Customer_Address"])
+    df_init = pd.DataFrame(columns=["Timestamp", "Items", "Total_Price", "Customer_Address", "Note"])
     df_init.to_csv(ORDER_FILE, index=False, encoding="utf-8-sig")
 
 st.title("🍔 ร้านอาหารอร่อยเด็ด (Food Delivery)")
@@ -18,7 +18,7 @@ st.write("ยินดีต้อนรับ! เลือกรายกา�
 if 'cart' not in st.session_state:
     st.session_state.cart = []
 
-# --- เมนูแนะนำ ---
+# --- 1. เมนูแนะนำ ---
 st.subheader("⭐ เมนูแนะนำวันนี้")
 st.markdown("### **🍳 กะเพราหมูกรอบ ไข่ดาว (พิเศษ)**")
 st.write("หมูกรอบผัดพริกแห้งเข้มข้น เสิร์ฟพร้อมไข่ดาวกรอบๆ")
@@ -29,7 +29,7 @@ if st.button("➕ เพิ่มเมนูแนะนำลงตะกร�
 
 st.divider()
 
-# --- รายการอาหาร ---
+# --- 2. รายการอาหาร ---
 st.subheader("📋 เมนูทั้งหมด")
 
 menu_data = {
@@ -69,7 +69,7 @@ for tab, (category, items) in zip(tabs, menu_data.items()):
 
 st.divider()
 
-# --- ตะกร้าสินค้าและการสั่งซื้อ ---
+# --- 3. ตะกร้าสินค้า ข้อมูลจัดส่ง และหมายเหตุ ---
 st.subheader("🛒 ตะกร้าสินค้าของคุณ")
 
 if not st.session_state.cart:
@@ -91,6 +91,9 @@ else:
     st.subheader("📍 ข้อมูลการจัดส่ง")
     address = st.text_area("กรอกชื่อ ที่อยู่จัดส่ง และเบอร์โทรศัพท์ติดต่อ", placeholder="ตัวอย่าง: นายใจดี มีสุข 123/45 ถ.สุขุมวิท โทร. 081-234-5678")
     
+    # เพิ่มช่องหมายเหตุถึงร้านค้า
+    note = st.text_input("📝 หมายเหตุถึงร้านค้า (ถ้ามี)", placeholder="ตัวอย่าง: ไม่ใส่ผัก, เผ็ดน้อย, แยกน้ำ")
+
     col_order, col_clear = st.columns([2, 1])
     with col_order:
         if st.button("✅ ยืนยันการสั่งซื้อ", type="primary", use_container_width=True):
@@ -102,7 +105,8 @@ else:
                     "Timestamp": [now],
                     "Items": [", ".join(items_list)],
                     "Total_Price": [total_price],
-                    "Customer_Address": [address]
+                    "Customer_Address": [address],
+                    "Note": [note if note.strip() else "-"]
                 }
                 new_df = pd.DataFrame(order_data)
                 new_df.to_csv(ORDER_FILE, mode='a', header=False, index=False, encoding="utf-8-sig")
@@ -115,7 +119,7 @@ else:
             st.session_state.cart = []
             st.rerun()
 
-# --- สำหรับผู้ดูแลระบบ ---
+# --- 4. สำหรับเจ้าของร้าน ---
 st.divider()
 with st.expander("📊 สำหรับเจ้าของร้าน: ดูประวัติออเดอร์ทั้งหมด"):
     if os.path.exists(ORDER_FILE):
