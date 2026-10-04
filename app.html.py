@@ -1,19 +1,27 @@
 import streamlit as st
+import pandas as pd
+import os
+from datetime import datetime
 
-# ตั้งค่าหน้าเว็บ
 st.set_page_config(page_title="ร้านอาหารออนไลน์", page_icon="🍔", layout="centered")
+
+ORDER_FILE = "orders.csv"
+
+# ตรวจสอบไฟล์เก็บข้อมูลถาวร
+if not os.path.exists(ORDER_FILE):
+    df_init = pd.DataFrame(columns=["Timestamp", "Items", "Total_Price", "Customer_Address"])
+    df_init.to_csv(ORDER_FILE, index=False, encoding="utf-8-sig")
 
 st.title("🍔 ร้านอาหารอร่อยเด็ด (Food Delivery)")
 st.write("ยินดีต้อนรับ! เลือกรายการอาหารที่คุณต้องการสั่งซื้อด้านล่างได้เลยครับ")
 
-# ระบบจัดการตะกร้าสินค้า
 if 'cart' not in st.session_state:
     st.session_state.cart = []
 
-# --- 1. เมนูแนะนำประจำวัน ---
+# --- เมนูแนะนำ ---
 st.subheader("⭐ เมนูแนะนำวันนี้")
 st.markdown("### **🍳 กะเพราหมูกรอบ ไข่ดาว (พิเศษ)**")
-st.write("หมูกรอบผัดพริกแห้งเข้มข้น กรอบนอกนุ่มใน เสิร์ฟพร้อมไข่ดาวกรอบๆ")
+st.write("หมูกรอบผัดพริกแห้งเข้มข้น เสิร์ฟพร้อมไข่ดาวกรอบๆ")
 st.write("💰 **ราคา: 75 บาท**")
 if st.button("➕ เพิ่มเมนูแนะนำลงตะกร้า", key="rec_btn", type="primary"):
     st.session_state.cart.append({"name": "กะเพราหมูกรอบ ไข่ดาว (พิเศษ)", "price": 75})
@@ -21,10 +29,9 @@ if st.button("➕ เพิ่มเมนูแนะนำลงตะกร�
 
 st.divider()
 
-# --- 2. หมวดหมู่และรายการอาหารเพิ่มเติม ---
+# --- รายการอาหาร ---
 st.subheader("📋 เมนูทั้งหมด")
 
-# ข้อมูลเมนูแยกตามหมวดหมู่ (เพิ่มเมนูใหม่ๆ แล้ว)
 menu_data = {
     "⚡ อาหารจานด่วน": [
         {"id": 101, "name": "กะเพราหมูสับ ไข่ดาว", "price": 60},
@@ -32,31 +39,19 @@ menu_data = {
         {"id": 103, "name": "ผัดไทยกุ้งสด", "price": 70},
         {"id": 104, "name": "ข้าวมันไก่ทอด", "price": 60},
         {"id": 105, "name": "ข้าวหมูกระเทียม ไข่ดาว", "price": 65},
-        {"id": 106, "name": "สุกี้น้ำ/แห้ง หมู/ไก่", "price": 60},
-        {"id": 107, "name": "ข้าวผัดปู", "price": 75},
-        {"id": 108, "name": "ราดหน้าหมูหมัก", "price": 60},
     ],
     "🍟 ของกินเล่น": [
         {"id": 201, "name": "เฟรนช์ฟรายส์ทอด", "price": 49},
         {"id": 202, "name": "นักเก็ตไก่ (6 ชิ้น)", "price": 59},
         {"id": 203, "name": "เกี๊ยวซ่าทอด (5 ชิ้น)", "price": 55},
-        {"id": 204, "name": "ไก่ป็อบชีส", "price": 59},
-        {"id": 205, "name": "ปอเปี๊ยะทอด", "price": 50},
-        {"id": 206, "name": "ลูกชิ้นปลาทอด", "price": 45},
     ],
     "🥤 เครื่องดื่ม": [
         {"id": 301, "name": "ชาไทยเย็น", "price": 35},
         {"id": 302, "name": "ชาเขียวนมเย็น", "price": 35},
-        {"id": 303, "name": "กาแฟโบราณ / โอเลี้ยง", "price": 35},
-        {"id": 304, "name": "น้ำมะนาวโซดา", "price": 40},
-        {"id": 305, "name": "ชามะนาว", "price": 35},
-        {"id": 306, "name": "นมสดเย็น / นมชมพู", "price": 40},
-        {"id": 307, "name": "น้ำเปล่า + น้ำแข็ง", "price": 15},
-        {"id": 308, "name": "โค้ก / แป๊ปซี่ (กระป๋อง)", "price": 25},
+        {"id": 303, "name": "น้ำมะนาวโซดา", "price": 40},
     ]
 }
 
-# สร้าง Tab สลับหมวดหมู่
 tabs = st.tabs(list(menu_data.keys()))
 
 for tab, (category, items) in zip(tabs, menu_data.items()):
@@ -74,25 +69,25 @@ for tab, (category, items) in zip(tabs, menu_data.items()):
 
 st.divider()
 
-# --- 3. สรุปตะกร้าสินค้าและรวมยอด ---
+# --- ตะกร้าสินค้าและการสั่งซื้อ ---
 st.subheader("🛒 ตะกร้าสินค้าของคุณ")
 
 if not st.session_state.cart:
     st.info("ยังไม่มีสินค้าในตะกร้า เลือกเมนูอร่อยๆ ด้านบนได้เลย!")
 else:
     total_price = 0
+    items_list = []
     
-    # แสดงรายการสินค้าในตะกร้า
     for idx, cart_item in enumerate(st.session_state.cart):
         c1, c2 = st.columns([3, 1])
         c1.write(f"{idx+1}. {cart_item['name']}")
         c2.write(f"**{cart_item['price']} ฿**")
         total_price += cart_item['price']
+        items_list.append(cart_item['name'])
         
     st.markdown("---")
     st.markdown(f"### 💰 **ราคารวมทั้งหมด: {total_price} บาท**")
     
-    # ฟอร์มกรอกที่อยู่จัดส่ง
     st.subheader("📍 ข้อมูลการจัดส่ง")
     address = st.text_area("กรอกชื่อ ที่อยู่จัดส่ง และเบอร์โทรศัพท์ติดต่อ", placeholder="ตัวอย่าง: นายใจดี มีสุข 123/45 ถ.สุขุมวิท โทร. 081-234-5678")
     
@@ -102,10 +97,27 @@ else:
             if not address.strip():
                 st.warning("⚠️ กรุณากรอกที่อยู่จัดส่งก่อนยืนยันครับ")
             else:
+                now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                order_data = {
+                    "Timestamp": [now],
+                    "Items": [", ".join(items_list)],
+                    "Total_Price": [total_price],
+                    "Customer_Address": [address]
+                }
+                new_df = pd.DataFrame(order_data)
+                new_df.to_csv(ORDER_FILE, mode='a', header=False, index=False, encoding="utf-8-sig")
+                
                 st.balloons()
-                st.success("🎉 สั่งซื้อสำเร็จ! ร้านค้าได้รับออเดอร์และกำลังจัดเตรียมอาหารให้คุณครับ")
+                st.success("🎉 สั่งซื้อสำเร็จ! ร้านค้าได้รับออเดอร์แล้ว")
                 st.session_state.cart = []
     with col_clear:
         if st.button("🗑️ ล้างตะกร้า", use_container_width=True):
             st.session_state.cart = []
             st.rerun()
+
+# --- สำหรับผู้ดูแลระบบ ---
+st.divider()
+with st.expander("📊 สำหรับเจ้าของร้าน: ดูประวัติออเดอร์ทั้งหมด"):
+    if os.path.exists(ORDER_FILE):
+        df_orders = pd.read_csv(ORDER_FILE)
+        st.dataframe(df_orders)
